@@ -2,10 +2,10 @@ while read line
 do
 
 # First LDAP host details - 
-ldapsearch -T1 -h LDAP_HOSTNAME_IP -D "cn=directory manager" -w 'PASSWORD' -b 'dc=nic,dc=in' -LLL uid=$line sn cn title givenname displayname mailEquivalentAddress | egrep -i 'sn:|cn:|title:|givenname:|displayname:|mailEquivalentAddress:' | grep [a-z] > sun.txt ; sed -i -e 's/mailEquivalentAddress/zimbraMailAlias/g' sun.txt ; sort sun.txt > sun1.txt                        
+ldapsearch -T1 -h LDAP_HOSTNAME_IP -D "cn=directory manager" -w 'PASSWORD' -b 'dc=domain,dc=in' -LLL uid=$line sn cn title givenname displayname mailEquivalentAddress | egrep -i 'sn:|cn:|title:|givenname:|displayname:|mailEquivalentAddress:' | grep [a-z] > sun.txt ; sed -i -e 's/mailEquivalentAddress/zimbraMailAlias/g' sun.txt ; sort sun.txt > sun1.txt                        
 
 # 2nd LDAP host details -  
-ldapsearch -LLL -x -h 2LDAP_HOSTNAME_IP -b 'ou=people,dc=nic,dc=in' -D 'uid=zimbra,cn=admins,cn=zimbra' -w 2LDAP_PASSWORD uid=$line sn cn title givenname displayname zimbramailalias | grep -v dn: > zimbra.txt ; sort zimbra.txt > zimbra1.txt
+ldapsearch -LLL -x -h 2LDAP_HOSTNAME_IP -b 'ou=people,dc=domain,dc=in' -D 'uid=zimbra,cn=admins,cn=zimbra' -w 2LDAP_PASSWORD uid=$line sn cn title givenname displayname zimbramailalias | grep -v dn: > zimbra.txt ; sort zimbra.txt > zimbra1.txt
 
 sed -e '/^$/d' zimbra1.txt > zim1.txt
 diff sun1.txt zim1.txt  
@@ -17,7 +17,7 @@ echo eq
 else
 echo not eq
 
-ldapsearch -LLL -x -h 2LDAP_HOSTNAME_IP -b 'ou=people,dc=nic,dc=in' -D 'uid=zimbra,cn=admins,cn=zimbra' -w 2LDAP_PASSWORD uid=$line uid | grep dn: > change.txt
+ldapsearch -LLL -x -h 2LDAP_HOSTNAME_IP -b 'ou=people,dc=domain,dc=in' -D 'uid=zimbra,cn=admins,cn=zimbra' -w 2LDAP_PASSWORD uid=$line uid | grep dn: > change.txt
 
 echo changetype: modify >>change.txt
 echo replace: cn >>change.txt
@@ -64,7 +64,7 @@ diff sun2.txt zimbra2.txt
        echo not eq
 
 
-ldapsearch -LLL -x -h LDAP_HOSTNAME_IP -b 'ou=people,dc=nic,dc=in' -D 'uid=zimbra,cn=admins,cn=zimbra' -w LDAP_PASSWORD uid=$line uid | grep dn: > aliasadd.txt
+ldapsearch -LLL -x -h LDAP_HOSTNAME_IP -b 'ou=people,dc=domain,dc=in' -D 'uid=zimbra,cn=admins,cn=zimbra' -w LDAP_PASSWORD uid=$line uid | grep dn: > aliasadd.txt
 echo changetype: modify >>aliasadd.txt
 echo add: zimbraMailAlias >>aliasadd.txt
 fgrep -i -v -x -f zimbra2.txt sun2.txt >> aliasadd.txt
